@@ -108,6 +108,15 @@
             </div>
             @endif
 
+            @if(($order->status=="Dispatched" || $order->status=="Payment_Done" || $order->status=="Delivered" || $order->final_payment_status=="verified") && $order->payment_mode=="cheque")
+            <div class="col-12 col-sm-12 col-md-3 col-lg-3">
+              <!-- Display additional order information if needed -->
+              <h4 class="orderid mb-0"><span></span>
+               <a href="{{ route('invoice') }}?orderIDInvoice={{Crypt::encrypt($order->id)}}" class="link-success" id="download-invoice-link">Download Invoice</a>
+              </h4>
+            </div>
+            @endif
+
 
 
             {{-- new code start  --}}

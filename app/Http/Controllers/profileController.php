@@ -151,24 +151,43 @@ class profileController extends Controller
             $arr = 0;
             $auth_id = auth::user()->id;
             $data = auth::user();
-            $order = Order::where('user_id', $auth_id)->orderBy('id', 'DESC')->with('orderItems')->get();
+            $order = Order::where('user_id', $auth_id)->with('invoices')->get();
+            
+          
             //  total order amount per month
-            $user_order_total = DB::table('orders')
-                ->selectRaw('Month(created_at) as month, SUM(amount) as total_amount')
-                ->where('user_id', $auth_id)
+            // $user_order_total = DB::table('orders')
+            //     ->selectRaw('Month(created_at) as month, SUM(amount) as total_amount')
+            //     ->where('user_id', $auth_id)
+            //     ->groupBy('month')
+            //     ->get();
+
+                $user_order_total = DB::table('orders')
+                ->join('invoice','orders.id','=','invoice.order_id')
+                ->selectRaw('Month(orders.created_at) as month, SUM(COALESCE(invoice.initial_amount,0)+COALESCE(invoice.amount,0)+COALESCE(invoice.totaltax,0)) as total_amount')
+                ->where('orders.user_id', $auth_id)
                 ->groupBy('month')
                 ->get();
+               
             $chardate = "";
             foreach ($user_order_total as $date) {
-                $month = DateTime::createFromFormat('!m', $date->month);
-                $chardate .= "['" . $month->format('F') . "'," . $date->total_amount . "],";
+                if($date->month===null || $date->total_amount===null)
+                {
+
+                }
+                else
+                {
+
+                    $month = DateTime::createFromFormat('!m', $date->month);
+                    $chardate .= "['" . $month->format('F') . "'," . $date->total_amount . "],";
+                }
             }
             $chartrim = rtrim($chardate, ',');
             //  total purchse in order
             $user_per_month = DB::table('orders')
-                ->selectRaw('Month(created_at) as month , count(id)
- as id')
+                ->selectRaw('Month(created_at) as month , count(id) as id')
                 ->where('user_id', $auth_id)->groupBy('month')->get();
+
+                
             $charorder = "";
             foreach ($user_per_month as $month) {
                 $order_m = DateTime::createFromFormat('!m', $month->month);
@@ -177,23 +196,48 @@ class profileController extends Controller
             $order_trim = rtrim($charorder, ',');
             if (count($order) > 0) {
                 foreach ($order as $total) {
-                    $arr += $total->amount;
+
+                    foreach($total->invoices as $singleInvoices)
+                    {
+                        $arr += $singleInvoices->amount+$singleInvoices->totaltax+$singleInvoices->initial_amount;
+
+                    }
                 }
             }
+        
+                                        
             $total_amount = "['amount',$arr]";
+           
             // per day order
             $per_month_amount = DB::table('orders')
-                ->selectRaw('Date(created_at) as date, amount as total_amount')
+               ->join('invoice','orders.id','=','invoice.order_id')
+                ->selectRaw('orders.created_at as date, COALESCE(invoice.amount,0)+COALESCE(invoice.initial_amount,0)+COALESCE(invoice.totaltax ,0) as total_amount')
                 ->where('user_id', $auth_id)
-                ->groupBy('date', 'amount')
+                ->groupBy('date', 'total_amount')
                 ->get();
-            // dd($per_month_amount); 
+
+            //    dd($per_month_amount);
+
+            
             $perday = "";
             foreach ($per_month_amount as $day) {
-                $month = new DateTime($day->date);
-                $perday .= "['" . $month->format('d') . "'," . $day->total_amount . "],";
+                if($day->date===null || $day->total_amount===null)
+                {
+
+                }
+                else
+                {
+                    $month = new DateTime($day->date);
+                    $perday .= "['" . $month->format('d') . "'," . $day->total_amount . "],";
+
+                }
             }
+            
+
             $perday_trim = rtrim($perday, ',');
+            // dd($perday_trim);
+            
+        
             return view('userDashboard.dashboard', compact('data', 'order', 'chartrim', 'order_trim', 'total_amount', 'perday_trim'));
         } catch (\Throwable $ex) {
             Log::info($ex->getMessage());

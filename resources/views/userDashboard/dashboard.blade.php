@@ -40,7 +40,7 @@
 {
   display: none!important;
 }
-#curve_chart #google-visualization-errors-0 span,#chart_div #google-visualization-errors-all-3 span
+#curve_chart #google-visualization-errors-0 span,#chart_div #google-visualization-errors-all-3 span,#chart_div #google-visualization-errors-all-1 span
 {
   display: none!important
 }.sale1 h5 {
@@ -113,7 +113,10 @@
                   <div id="donut_single"style="width:100% ; height: 200px;"></div>
 
                    @foreach($order as $item)
-                       <span style="visibility: hidden"class="position-absolute top-0"> {{$items+=$item->amount}}</span>
+                   @foreach ($item->invoices as  $invoiceValue)
+                     
+                   <span style="visibility: hidden"class="position-absolute top-0"> {{$items+= $invoiceValue->amount+$invoiceValue->totaltax+$invoiceValue->initial_amount}}</span>
+                   @endforeach
                   @endforeach
                   @if($items === 0)
                   <h3 class="amount_total">No data</h3>
@@ -144,7 +147,7 @@
 
                     <h3>Orders per day</h3>
                     <h5>No data</h5>
-
+                   @else()
                   @endif
                   <div id="chart_div" style="width: 100%;"></div>
                 </div>
@@ -184,7 +187,8 @@
              <span class="position:absolute;top:0"style="display:none">{{$num=1}}</span>
              <span class="position:absolute;top:0"style="display:none">{{$categories_relation=""}}</span>
              @foreach ($order as $value)
-             {{-- {{dd($order)}} --}}
+
+             
              {{$categories_relation=""}}
              @foreach ($value->orderItems as $main )
              <span  class="position:absolute;top:0"style="display:none">{{$categories_relation.=$main->category_name.','}}</span>
@@ -192,7 +196,14 @@
                <tr>
                  <td>{{$value->order_no}}</td>
                  <td>{{rtrim($categories_relation,",")}}</td>
-                 <td> {{$value->amount}}</td>
+                 @if($value->amount===null)
+                 <td>Not Paid</td>
+                 @else
+                 @foreach($value->invoices as $invoiceData)
+                 
+                 <td> {{$invoiceData->amount+$invoiceData->initial_amount+$invoiceData->totaltax}}</td>
+                 @endforeach
+                 @endif
                  <td> {{ \Carbon\Carbon::parse($value->transaction_date)->format('d F Y')}} </td>
                  <td> {{ \Carbon\Carbon::parse($value->created_at)->format('d F Y')}}</td>
                  <td> {{$value->payment_status}}</td>
@@ -340,6 +351,7 @@
           </div>
         </div>
         <div class="col-lg-6">
+          
           <div id="piechart" style="width: 100%; height: 500px;"></div>
         </div>
         <div class="col-lg-6">
