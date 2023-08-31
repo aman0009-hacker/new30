@@ -232,4 +232,6 @@ Route::get('sendSMS',[sendSmsController::class,'sendSMS'])->name('otpSms');
 // Route::post('sendEamilotp',[sendEmailController::class,'emailotp'])->name('register');
 
 
-Route::get('checkusersms/{sms}',[OTPHandleController::class,'store'])->name('store');
+Route::get('checkusersms/{sms}/{userid}',[OTPHandleController::class,'sms'])->name('store');
+Route::get('checkuseremail/{email}/{userid}',[OTPHandleController::class,'email'])->name('store');
+

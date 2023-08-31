@@ -1,5 +1,12 @@
 @extends('layouts.guest')
 @section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<style>
+  .invisible_sms,.invisible_email
+  {
+    display: none;
+  }
+</style>
 <div class="main">
   <div class="container-fluid p-4">
     <div class="sign-up-page">
@@ -158,7 +165,7 @@
                     <input type="text" id="userOtp" class="form-control  form-input bg-transparent"
                       aria-describedby="otpHelpInline" placeholder="Enter OTP ★" required name="userOtp"
                       oninvalid="this.setCustomValidity('Enter the required OTP')" title="Enter OTP"
-                      oninput="setCustomValidity('')" maxlength="10">
+                      oninput="setCustomValidity('')" maxlength="10"value="{{Auth::user()->otp_generated_at===null?'':Auth::user()->otp}}">
                      
                     <label for="userOtp" class="form-label">Enter OTP <span style="color:red">★</span></span></label>
                   </div>
@@ -166,6 +173,10 @@
                 <div class="col-6">
                   <span id="otpHelpInline" class="form-text">
                     <button type="button"class="btn btn-link btn-sm" id="verfiy_user_sms">Verfiy SMS</button>
+                    <span class="invisible_sms">
+                      <img src="images/icon/check.png"alt="check"style="width:16px;">
+                      <label for="verified"style="font-size:14px;color:#0d6efd;vertical-align:-2px">Verfied</label>
+                    </span>
                     <button type="button" class="btn btn-link btn-sm" id="otpHandleBtn" class="ms-4">Resend
                       OTP</button>
                     {{-- <a href="" id="otpHandleBtn">Resend OTP</a> --}}
@@ -174,13 +185,22 @@
                 </div>
 
 
-
+              </div>
 
 
 {{-- emailotp --}}
 
+@if(Auth::user()->otp!=null)
+
+  <input type="hidden" id ="check_database"value="{{Auth::user()->otp}}">
+
+@endif
 
 
+@if(Auth::user()->email_mode!=null)
+  <input type="hidden" id="check_email_column"value="{{Auth::user()->email_mode}}">
+
+@endif
 
 
                 <div class="mb-0 position-relative form-control-new">
@@ -199,13 +219,17 @@
                       <input type="text" id="useremailOtp" class="form-control  form-input bg-transparent"
                         aria-describedby="otpHelpInline" placeholder="Enter OTP ★" required name="useremailOtp"
                         oninvalid="this.setCustomValidity('Enter the required OTP')" title="Enter OTP"
-                        oninput="setCustomValidity('')" maxlength="10">
+                        oninput="setCustomValidity('')" maxlength="10" value="{{Auth::user()->email_mode===null?'': Auth::user()->email_otp}}">
                       <label for="userOtp" class="form-label">Enter OTP <span style="color:red">★</span></span></label>
                     </div>
                   </div>
                   <div class="col-6">
                     <span id="otpHelpInline" class="form-text">
                       <button type="button"class="btn btn-link btn-sm" id="verfiy_user_email">Verfiy Email</button>
+                      <span class="invisible_email">
+                        <img src="images/icon/check.png"alt="check"style="width:16px;">
+                        <label for="verified"style="font-size:14px;color:#0d6efd;vertical-align:-2px">Verfied</label>
+                      </span>
                       <button type="button" class="btn btn-link btn-sm" id="otpEmailBtn" class="ms-4">Resend
                         OTP</button>
                       {{-- <a href="" id="otpHandleBtn">Resend OTP</a> --}}
@@ -225,7 +249,7 @@
 
 
 
-              </div>
+             
               <div class="row">
                 <div class="col-6">
                   <div class="action">
@@ -248,29 +272,154 @@
 @endsection
 
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
 <script>
+  
   $(document).ready(function()
   {
+
+    let data=$("#check_database").val();
+    let data_email=$("#check_email_column").val();
+    if(data!=undefined)
+    {
+       $('#verfiy_user_sms').hide();
+               $('.invisible_sms').show();
+               let otpinput=document.getElementById('userOtp');
+                otpinput.disabled=true;
+    }
+    
+    if(data_email!=undefined)
+    {
+      $('#verfiy_user_email').hide();
+            $('.invisible_email').show();
+            let optofuseremail=document.getElementById('useremailOtp');
+            optofuseremail.disabled=true;
+    }
     $('#verfiy_user_sms').on('click',function()
     {
       let sms=document.getElementById('userOtp').value;
+      let userId=document.getElementById('id').value
 
       if(sms===""|| sms===null)
       {
-         
+        toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+        showDuration: '300',
+        hideDuration: '1000',
+        timeOut: '5000',
+        extendedTimeOut: '1000',
+        showEasing: 'swing',
+        hideEasing: 'linear',
+        showMethod: 'fadeIn',
+        // hideMethod: 'fadeOut'
+    };
+    toastr.error("Please fill the SMS column first.");
+      } 
+      else if(sms!==null || sms!=="")
+      {
+
+        $.ajax({
+          url:"checkusersms/"+sms+"/"+userId,
+          type:'get',
+          datatype:"JSON",
+          success:function(response)
+          {
+            console.log(response);
+            if(response.message==="match")
+            {
+             
+              
+               $('#verfiy_user_sms').hide();
+               $('.invisible_sms').show();
+               let otpinput=document.getElementById('userOtp');
+                otpinput.disabled=true;
+
+
+
+            }
+            else
+            {
+              toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+        showDuration: '300',
+        hideDuration: '1000',
+        timeOut: '5000',
+        extendedTimeOut: '1000',
+        showEasing: 'swing',
+        hideEasing: 'linear',
+        showMethod: 'fadeIn',
+        // hideMethod: 'fadeOut'
+    };
+    toastr.error("The otp number is wrong");
+            }
+             
+          }
+        })
       }
      
-    $.ajax({
-      url:"checkusersms/"+sms,
-      type:'get',
-      datatype:"JSON",
-      success:function()
+    });
+    $('#verfiy_user_email').on('click',function()
+    {
+      let emailotp=$('#useremailOtp').val();
+      let emailuserid=$('#id').val();
+      if($('#useremailOtp').val()==="" || $('#useremailOtp').val()===null)
       {
-        
-         
+        toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+        showDuration: '300',
+        hideDuration: '1000',
+        timeOut: '5000',
+        extendedTimeOut: '1000',
+        showEasing: 'swing',
+        hideEasing: 'linear',
+        showMethod: 'fadeIn',
+        // hideMethod: 'fadeOut'
+    };
+    toastr.error("Please fill the Email column first.");
       }
-    })
+      else if($('#useremailOtp').val!=="" || $('#useremailOtp').val!==null)
+      $.ajax({
+        url:'checkuseremail/'+emailotp+'/'+emailuserid,
+        type:'get',
+        datatype:'JSON',
+        success:function(response)
+        {
+          if(response.message==="match")
+          {
+            $('#verfiy_user_email').hide();
+            $('.invisible_email').show();
+            let optofuseremail=document.getElementById('useremailOtp');
+            optofuseremail.disabled=true;
+
+
+          }
+          else
+            {
+              toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+        showDuration: '300',
+        hideDuration: '1000',
+        timeOut: '5000',
+        extendedTimeOut: '1000',
+        showEasing: 'swing',
+        hideEasing: 'linear',
+        showMethod: 'fadeIn',
+        // hideMethod: 'fadeOut'
+    };
+    toastr.error("The otp number is wrong");
+            }
+        }
+      })
+
     })
    
   })
