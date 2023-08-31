@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\sendEmailController;
+use App\Http\Controllers\sendSmsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OTPHandleController;
 use App\Http\Controllers\DocumentProcessController;
@@ -67,6 +69,18 @@ Route::post('chatData', [App\Admin\Controllers\CustomPageController::class, 'cha
 Route::post('chatDataPost', [App\Admin\Controllers\CustomPageController::class, 'chatDataPost'])->name('chatDataPost');
 Route::post('checkurl', [App\Admin\Controllers\CustomPageController::class, 'checkurl'])->name('checkurl');
 Route::post('checkurlIndex', [App\Admin\Controllers\CustomPageController::class, 'checkurlIndex'])->name('checkurlIndex');
+
+
+
+
+
+
+
+
+
+
+
+
 
 //Route::middleware(['auth'])->group(function () {
     Route::get('/payment', function () {
@@ -140,7 +154,7 @@ Route::post('checkurlIndex', [App\Admin\Controllers\CustomPageController::class,
         return view('supervisor_records');
     });
     Route::post('ajaxRequest', [OTPHandleController::class, 'ajaxRequestPost'])->name('ajaxRequest.post');
-    Route::post('store', [OTPHandleController::class, 'store'])->name('store');
+    // Route::post('store', [OTPHandleController::class, 'store'])->name('store');
     Route::post('ajaxRequestPostDocument', [DocumentProcessController::class, 'ajaxRequestPostDocument'])->name('ajaxRequest.postdocument');
     Route::post('fileUploadPost', 'App\Http\Controllers\FileUploadController@fileUploadPost')->name('file.upload.post');
     Route::post('post-login', [LoginController::class, 'postLogin'])->name('login.post');
@@ -205,3 +219,17 @@ Route::get("/payment/complete/process/{id}/{status}", [PaymentController::class,
 // Route::get("/payment/method/change/{paymentMode}", [PaymentController::class, 'paymentMethodChange'])->name('payment.method.change');
 Route::get("/payment/method/change/{paymentMode}/{data}", [PaymentController::class, 'paymentMethodChange'])->name('payment.method.change');
 Route::get("/chatcount", [App\Admin\Controllers\CustomPageController::class, 'chatCount'])->name('chatCount');
+
+
+
+// Route::post('sendSingleSMS',[sendSmsController::class,'sendSingleSMS'])->name('singleSms');
+Route::get('sendSMS',[sendSmsController::class,'sendSMS'])->name('otpSms');
+
+
+
+// {{-- emailotp --}}
+
+// Route::post('sendEamilotp',[sendEmailController::class,'emailotp'])->name('register');
+
+
+Route::get('checkusersms/{sms}',[OTPHandleController::class,'store'])->name('store');

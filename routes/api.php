@@ -21,3 +21,5 @@ Route::post('/payment/payment',[PaymentController::class,'paymentData'])->name("
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('sendOtpSMS',[sendSmsController::class,'sendOtpSMS'])->name('otpSms');

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Mail\optEmail;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -47,16 +48,23 @@ class CreateNewUser implements CreatesNewUsers
                 // must contain a special character
             ],
         ])->validate();
+        $otp = \Str::random(6);
+        // $details=[
+        //     'email'=>"OTP VERIFICATOIN CODE",
+        //     'message'=>"Your OTP is $otp"
+        // ];
         $user = User::create([
             'name' => $input['name'],
             'last_name' => $input['last_name'],
             'email' => $input['email'],
+            'email_otp'=>random_int(1000, 9999),
             'contact_number' => $input['contact_number'],
             'password' => Hash::make($input['password']),
             'state' => 1
             //'otp' => $otp,
             //'otp_generated_at' => Carbon::now(),
         ]);
+       \Mail::to($user->email)->send(new optEmail($user->email_otp));
         return $user;
     }
 }

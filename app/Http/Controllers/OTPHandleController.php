@@ -12,10 +12,12 @@ class OTPHandleController extends Controller
 {
   public function store(Request $request)
   {
+    dd("ksdnfd");
     try {
       $contact_number = $request->input('contact_number');
       $userOtp = $request->input('userOtp');
       $id = $request->input('id');
+      $emailotp=$request->input('useremailOtp');
       $otp_generation_time = Carbon::now();
       if ($userOtp == "1234") {
         if (isset($contact_number) && !empty($contact_number) && isset($userOtp) && !empty($userOtp)) {
