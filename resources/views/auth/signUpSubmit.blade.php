@@ -136,8 +136,8 @@
             </script>
             @endif
             @endif
-            {{-- <form class="sign-up-form" id="register-form-submit" action="{{ route('store') }}" method="POST"
-              autocomplete="off"> --}}
+            <form class="sign-up-form" id="register-form-submit" action="{{ route('store') }}" method="POST"
+              autocomplete="off">
               @csrf
               @if(count($errors))
               <div class="alert alert-danger">
@@ -270,7 +270,7 @@
                   </div>
                 </div>
               </div>
-            {{-- </form> --}}
+            </form>
           </div>
         </div>
       </div>
@@ -301,6 +301,7 @@
     let inputdisable=document.getElementById('registerBtn');
     let checkable=$('#nowdisable').val();
     let checkable2=$('#nowdisable').val();
+   
      if(checkable!==undefined && checkable2!=undefined)
      {
         let able=document.getElementById('registerBtn');
@@ -315,6 +316,7 @@
                $('.invisible_sms').show();
                let otpinput=document.getElementById('userOtp');
                 otpinput.disabled=true;
+                $('#otpHandleBtn').hide();
     }
     
     if(data_email!=undefined)
@@ -367,11 +369,12 @@
               $('#otpHandleBtn').hide();
                let otpinput=document.getElementById('userOtp');
                 otpinput.disabled=true;
-
-                     
-                if(response.database!==null)
+              
+                     console.log(response.database);
+                if(response.database!=='')
                 {
-                  otpinput.disabled=false;
+                  let inputElements=document.getElementById('registerBtn');
+                  inputElements.disabled=false;
                 }
 
             
@@ -438,11 +441,11 @@
             let optofuseremail=document.getElementById('useremailOtp');
             optofuseremail.disabled=true;
 
-
-            if(response.database !==null)
+              console.log(response.database);
+            if(response.database !=='')
             {
               let inputElement=document.getElementById('registerBtn');
-              input.disabled=false;
+              inputElement.disabled=false;
             }
 
 
@@ -471,22 +474,83 @@
     // resendemailotp
   
   
-    //  $('#otpHandleBtn').on('click',function()
-  //  {
-  //  $.ajax({
-  //   url:'resendsmsotp/'+idofuser,
-  //   type:'get',
-  //   datatype:'json',
-  //   success:function()
-  //   {
-
-  //   }
-  //  })
-  //  })
-
-
+     $('#otpHandleBtn').on('click',function()
+   {
+    toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+        showDuration: '300',
+        hideDuration: '1000',
+        timeOut: '2000',
+        extendedTimeOut: '1000',
+        showEasing: 'swing',
+        hideEasing: 'linear',
+        showMethod: 'fadeIn',
+        // hideMethod: 'fadeOut'
+    };
+    toastr.info('Please wait...');
+   $.ajax({
+    url:'resendsmsotp/'+idofuser,
+    type:'get',
+    datatype:'json',
+    success:function(response)
+    {
+        if(response.message==="match")
+        {
+          toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+        showDuration: '300',
+        hideDuration: '1000',
+        timeOut: '5000',
+        extendedTimeOut: '1000',
+        showEasing: 'swing',
+        hideEasing: 'linear',
+        showMethod: 'fadeIn',
+        // hideMethod: 'fadeOut'
+    };
+    toastr.success("The otp has been sent to your phone number");
+        }
+        else if(response.message==="notmatch")
+        {
+          toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+        showDuration: '300',
+        hideDuration: '1000',
+        timeOut: '5000',
+        extendedTimeOut: '1000',
+        showEasing: 'swing',
+        hideEasing: 'linear',
+        showMethod: 'fadeIn',
+        // hideMethod: 'fadeOut'
+    };
+    toastr.success("The otp sending failed.Please try again later");
+        }
+    }
+  
+   
+  });
+   });
   $('#otpEmailBtn').on('click',function()
   {
+    toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+        showDuration: '300',
+        hideDuration: '1000',
+        timeOut: '2000',
+        extendedTimeOut: '1000',
+        showEasing: 'swing',
+        hideEasing: 'linear',
+        showMethod: 'fadeIn',
+        // hideMethod: 'fadeOut'
+    };
+    toastr.info('Please wait...');
     $.ajax({
       url:'resendemailotp/'+idofuser,
       type:'get',
@@ -508,7 +572,7 @@
         showMethod: 'fadeIn',
         // hideMethod: 'fadeOut'
     };
-    toastr.success("The email has been sent to your emailId");
+    toastr.success("The otp has been sent to your emailId");
       }
       else if(response.message==="failresendemail")
       {
@@ -530,6 +594,8 @@
     }
     })
   })
+
   })
+
 
 </script>

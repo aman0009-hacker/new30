@@ -41,8 +41,8 @@ class User extends Authenticatable
         'email',
         'contact_number',
         'state',
-        'email_otp'
-        //'otp',
+        'email_otp',
+        'otp',
         //'otp_generated_at'
     ];
 

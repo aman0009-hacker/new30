@@ -19,6 +19,7 @@
         "orangehill/iseed": "^3.0",
         "realrashid/sweet-alert": "^7.0",
         "spatie/laravel-activitylog": "^4.7",
+        "twilio/sdk": "^7.9",
         "webpatser/laravel-uuid": "^4.0"
     },
     "require-dev": {

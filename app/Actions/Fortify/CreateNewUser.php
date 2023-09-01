@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
-
+use Twilio\Rest\Client;
 class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules;
@@ -58,6 +58,7 @@ class CreateNewUser implements CreatesNewUsers
             'last_name' => $input['last_name'],
             'email' => $input['email'],
             'email_otp'=>random_int(1000, 9999),
+            'otp'=>random_int(1000, 9999),
             'contact_number' => $input['contact_number'],
             'password' => Hash::make($input['password']),
             'state' => 1
@@ -65,6 +66,19 @@ class CreateNewUser implements CreatesNewUsers
             //'otp_generated_at' => Carbon::now(),
         ]);
        \Mail::to($user->email)->send(new optEmail($user->email_otp));
+       $twilioSid=env('ACCOUNT_SID');
+       $twilioToken=env('AUTH_TOKEN');
+       $twilioPhoneNumber=env('PHONE_NUMBER');
+       $client = new Client($twilioSid, $twilioToken);
+      
+           $data = $client->messages->create('+91'.$user->contact_number,
+               [
+                   'from' => $twilioPhoneNumber,
+                   'body' => $user->otp
+               ]
+           );
+          
+        
         return $user;
     }
 }

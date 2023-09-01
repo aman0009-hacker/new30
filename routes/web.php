@@ -154,7 +154,7 @@ Route::post('checkurlIndex', [App\Admin\Controllers\CustomPageController::class,
         return view('supervisor_records');
     });
     Route::post('ajaxRequest', [OTPHandleController::class, 'ajaxRequestPost'])->name('ajaxRequest.post');
-    // Route::post('store', [OTPHandleController::class, 'store'])->name('store');
+    Route::post('store', [OTPHandleController::class, 'store'])->name('store');
     Route::post('ajaxRequestPostDocument', [DocumentProcessController::class, 'ajaxRequestPostDocument'])->name('ajaxRequest.postdocument');
     Route::post('fileUploadPost', 'App\Http\Controllers\FileUploadController@fileUploadPost')->name('file.upload.post');
     Route::post('post-login', [LoginController::class, 'postLogin'])->name('login.post');
@@ -232,9 +232,10 @@ Route::get('sendSMS',[sendSmsController::class,'sendSMS'])->name('otpSms');
 // Route::post('sendEamilotp',[sendEmailController::class,'emailotp'])->name('register');
 
 
-Route::get('checkusersms/{sms}/{userid}',[OTPHandleController::class,'sms'])->name('store');
-Route::get('checkuseremail/{email}/{userid}',[OTPHandleController::class,'email'])->name('store');
+Route::get('checkusersms/{sms}/{userid}',[OTPHandleController::class,'sms']);
+Route::get('checkuseremail/{email}/{userid}',[OTPHandleController::class,'email']);
 Route::get('resendsmsotp/{idofuser}',[OTPHandleController::class,'resendsms']);
 Route::get('resendemailotp/{idofuser}',[OTPHandleController::class,'resendemail']); 
+
 
 
