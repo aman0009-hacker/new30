@@ -167,7 +167,7 @@ Route::post('checkurlIndex', [App\Admin\Controllers\CustomPageController::class,
     Route::post('dropzone/store', [FileUploadController::class, 'store'])->name('dropzone.store');
     Route::post('adminDownload', [App\Admin\Controllers\CustomPageController::class, 'adminDownload'])->name('adminDownload');
     Route::get("PaymentDetails/{id}", [App\Admin\Controllers\CustomPageController::class, 'PaymentDetails'])->name('PaymentDetails');
-    Route::get("PaymentDetailsOrder/{id}/{status}", [App\Admin\Controllers\CustomPageController::class, 'PaymentDetailsOrder'])->name('PaymentDetailsOrder');
+    Route::get("paymentdetailsorder/{id}/{status}", [App\Admin\Controllers\CustomPageController::class, 'PaymentDetailsOrder'])->name('PaymentDetailsOrder');
     Route::post('/entities/{categoryId}', [ProductCategoryController::class, 'entity'])->name('category.entities');
     Route::get('/RawMaterial', [ProductCategoryController::class, 'index'])->name('RawMaterial');
     Route::post('/entityData', [ProductCategoryController::class, 'entityData'])->name('entityData');
@@ -234,4 +234,7 @@ Route::get('sendSMS',[sendSmsController::class,'sendSMS'])->name('otpSms');
 
 Route::get('checkusersms/{sms}/{userid}',[OTPHandleController::class,'sms'])->name('store');
 Route::get('checkuseremail/{email}/{userid}',[OTPHandleController::class,'email'])->name('store');
+Route::get('resendsmsotp/{idofuser}',[OTPHandleController::class,'resendsms']);
+Route::get('resendemailotp/{idofuser}',[OTPHandleController::class,'resendemail']); 
+
 

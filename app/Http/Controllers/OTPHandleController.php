@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\optEmail;
 use Auth;
 use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+// use Mail;
 use Session;
 
 class OTPHandleController extends Controller
@@ -18,12 +20,13 @@ class OTPHandleController extends Controller
     try {
       $smsotp=$otp;
       $userid=$id;
+      $idoftheuser=user::find($userid);
       $otp_generation_time = Carbon::now();
       if($smsotp==="1234")
       {
     
         $query = DB::table('users')->where('id', $userid)->update(['otp' => $smsotp, 'otp_generated_at' => $otp_generation_time, 'state' => 2]); 
-        return response()->json(["type"=>"success","message"=>"match"]);
+        return response()->json(["type"=>"success","message"=>"match","database"=>"$idoftheuser->email_mode"]);
       }
       else
       {
@@ -68,13 +71,55 @@ class OTPHandleController extends Controller
     if($email===$userdata->email_otp)
     {
       DB::table('users')->where('id', $emailuserid)->update([ 'email_mode' => "success", 'state' => 2]);
-      return response()->json(['type'=>"success","message"=>"match"]);
+      return response()->json(['type'=>"success","message"=>"match","database"=>"$userdata->otp_generated_at"]);
     }
     else
     {
-      DB::table('users')->where('id', $emailuserid)->update([ 'email_mode' => "fail", 'state' => 2]);
+      
       return response()->json(['type'=>"fail","message"=>"not_match"]);
     }
 
+  }
+  // public function resendsms($useremail_id)
+  // {
+  //  $idofuser=$useremail_id;
+  //  $data=user::find($idofuser);
+  //  if($smsotp==="1234")
+  //     {
+    
+  //       $query = DB::table('users')->where('id', $userid)->update(['otp' => $smsotp, 'otp_generated_at' => $otp_generation_time, 'state' => 2]); 
+  //       return response()->json(["type"=>"success","message"=>"match"]);
+  //     }
+  //     else
+  //     {
+  //       return response()->json(["type"=>"fail","message"=>"notmatch"]);
+  //     }
+  // }
+
+  public function resendemail($useremail_id)
+  {
+    $idofuser=$useremail_id;
+      $useremailotp=random_int(1000, 9999);
+    $userdata=user::find($idofuser);
+    if($userdata)
+    {
+      $query=user::where('id',$idofuser)->update(['email_otp'=>$useremailotp]);
+      try
+      {
+
+        \Mail::to($userdata->email)->send(new optEmail($useremailotp));
+        return response()->json(["type"=>"success","message"=>"resendemail"]);
+      }
+    catch (\Exception $e)
+    {
+      return response()->json(["type"=>"fail","message"=>"failresendemail"]);
+    }
+    }
+
+    
+    else
+    {
+      return response()->json(["type"=>"fail","message"=>"failresendemail"]);
+    }
   }
 }

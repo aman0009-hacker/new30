@@ -71,6 +71,7 @@
             </div>
           </div>
         </div>
+       
         <div class="col-12 col-md-5 user-signUp">
           <div class="user-signUp-form">
             <div class="row text-center">
@@ -190,19 +191,26 @@
 
 {{-- emailotp --}}
 
-@if(Auth::user()->otp!=null)
+@if(Auth::user()->otp_generated_at!=null)
 
   <input type="hidden" id ="check_database"value="{{Auth::user()->otp}}">
 
 @endif
 
 
-@if(Auth::user()->email_mode!=null)
+@if(Auth::user()->email_mode!=null && Auth::user()->email_mode==="success")
   <input type="hidden" id="check_email_column"value="{{Auth::user()->email_mode}}">
 
 @endif
 
+@if(Auth::user()->otp_generated_at!==null && Auth::user()->email_mode==="success")
 
+  <input type="hidden" value="{{Auth::user()->otp_generated_at}}" id="nowdisable">
+  <input type="hidden" value="{{Auth::user()->email_mode}}" id="nowdisabled">
+
+
+
+@endif
                 <div class="mb-0 position-relative form-control-new">
                   <input type="text" class="form-control form-input bg-transparent" id="EmailId"
                   name='contact_number' title="EmailId" maxlength="10" minlength="10"
@@ -219,7 +227,7 @@
                       <input type="text" id="useremailOtp" class="form-control  form-input bg-transparent"
                         aria-describedby="otpHelpInline" placeholder="Enter OTP ★" required name="useremailOtp"
                         oninvalid="this.setCustomValidity('Enter the required OTP')" title="Enter OTP"
-                        oninput="setCustomValidity('')" maxlength="10" value="{{Auth::user()->email_mode===null?'': Auth::user()->email_otp}}">
+                        oninput="setCustomValidity('')" maxlength="10" value="{{Auth::user()->email_mode===null ?'': Auth::user()->email_otp }}">
                       <label for="userOtp" class="form-label">Enter OTP <span style="color:red">★</span></span></label>
                     </div>
                   </div>
@@ -275,12 +283,32 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
 <script>
+
+
+   
+
+
+
+
   
   $(document).ready(function()
   {
 
+
     let data=$("#check_database").val();
     let data_email=$("#check_email_column").val();
+    let idofuser=document.getElementById('id').value;
+    let inputdisable=document.getElementById('registerBtn');
+    let checkable=$('#nowdisable').val();
+    let checkable2=$('#nowdisable').val();
+     if(checkable!==undefined && checkable2!=undefined)
+     {
+        let able=document.getElementById('registerBtn');
+        able.disabled=false;
+     }
+
+
+
     if(data!=undefined)
     {
        $('#verfiy_user_sms').hide();
@@ -295,6 +323,8 @@
             $('.invisible_email').show();
             let optofuseremail=document.getElementById('useremailOtp');
             optofuseremail.disabled=true;
+            $('#otpHandleBtn').hide();
+            $('#otpEmailBtn').hide();
     }
     $('#verfiy_user_sms').on('click',function()
     {
@@ -327,15 +357,24 @@
           datatype:"JSON",
           success:function(response)
           {
-            console.log(response);
+            
             if(response.message==="match")
             {
              
               
                $('#verfiy_user_sms').hide();
                $('.invisible_sms').show();
+              $('#otpHandleBtn').hide();
                let otpinput=document.getElementById('userOtp');
                 otpinput.disabled=true;
+
+                     
+                if(response.database!==null)
+                {
+                  otpinput.disabled=false;
+                }
+
+            
 
 
 
@@ -395,8 +434,16 @@
           {
             $('#verfiy_user_email').hide();
             $('.invisible_email').show();
+            $('#otpEmailBtn').hide();
             let optofuseremail=document.getElementById('useremailOtp');
             optofuseremail.disabled=true;
+
+
+            if(response.database !==null)
+            {
+              let inputElement=document.getElementById('registerBtn');
+              input.disabled=false;
+            }
 
 
           }
@@ -421,7 +468,68 @@
       })
 
     })
-   
+    // resendemailotp
+  
+  
+    //  $('#otpHandleBtn').on('click',function()
+  //  {
+  //  $.ajax({
+  //   url:'resendsmsotp/'+idofuser,
+  //   type:'get',
+  //   datatype:'json',
+  //   success:function()
+  //   {
+
+  //   }
+  //  })
+  //  })
+
+
+  $('#otpEmailBtn').on('click',function()
+  {
+    $.ajax({
+      url:'resendemailotp/'+idofuser,
+      type:'get',
+    datatype:'json',
+    success:function(response)
+    {
+      if(response.message==="resendemail")
+      {
+        toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+        showDuration: '300',
+        hideDuration: '1000',
+        timeOut: '5000',
+        extendedTimeOut: '1000',
+        showEasing: 'swing',
+        hideEasing: 'linear',
+        showMethod: 'fadeIn',
+        // hideMethod: 'fadeOut'
+    };
+    toastr.success("The email has been sent to your emailId");
+      }
+      else if(response.message==="failresendemail")
+      {
+        toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+        showDuration: '300',
+        hideDuration: '1000',
+        timeOut: '5000',
+        extendedTimeOut: '1000',
+        showEasing: 'swing',
+        hideEasing: 'linear',
+        showMethod: 'fadeIn',
+        // hideMethod: 'fadeOut'
+    };
+    toastr.error("Email sending failed. Please try again later.");
+      }
+    }
+    })
+  })
   })
 
 </script>

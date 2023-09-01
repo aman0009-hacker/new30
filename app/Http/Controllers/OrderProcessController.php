@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -22,6 +23,17 @@ class OrderProcessController extends Controller
         if (isset($txtOrderGlobalModalID) && !empty($txtOrderGlobalModalID)) {
             return view('components.order-process', compact('txtOrderGlobalModalID'));
             //dd($txtOrderGlobalModalID=$request->input('txtOrderGlobalModalID'));
+        }
+    }
+
+    public function emailinitialpayment($id)
+    {
+        $txtOrderGlobalModalID=Crypt::decrypt($id);
+        Session::forget('txtOrderGlobalModalID');
+        Session::put('txtOrderGlobalModalID', $txtOrderGlobalModalID ?? '');
+        if (isset($txtOrderGlobalModalID) && !empty($txtOrderGlobalModalID)) {
+            return view('components.order-process', compact('txtOrderGlobalModalID'));
+            
         }
     }
 
