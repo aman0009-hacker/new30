@@ -166,7 +166,8 @@
                     <input type="text" id="userOtp" class="form-control  form-input bg-transparent"
                       aria-describedby="otpHelpInline" placeholder="Enter OTP ★" required name="userOtp"
                       oninvalid="this.setCustomValidity('Enter the required OTP')" title="Enter OTP"
-                      oninput="setCustomValidity('')" maxlength="10"value="{{Auth::user()->otp_generated_at===null?'':Auth::user()->otp}}">
+                      oninput="setCustomValidity('')" maxlength="10"value="{{Auth::check()?Auth::user()->otp_generated_at===null?'':Auth::user()->otp:
+                    ''}}">
                      
                     <label for="userOtp" class="form-label">Enter OTP <span style="color:red">★</span></span></label>
                   </div>
@@ -190,19 +191,23 @@
 
 
 {{-- emailotp --}}
-
+@if(Auth::check())
 @if(Auth::user()->otp_generated_at!=null)
 
   <input type="hidden" id ="check_database"value="{{Auth::user()->otp}}">
 
 @endif
+@endif
 
-
+@if(Auth::check())
 @if(Auth::user()->email_mode!=null && Auth::user()->email_mode==="success")
   <input type="hidden" id="check_email_column"value="{{Auth::user()->email_mode}}">
 
 @endif
+@endif
 
+
+@if(Auth::check())
 @if(Auth::user()->otp_generated_at!==null && Auth::user()->email_mode==="success")
 
   <input type="hidden" value="{{Auth::user()->otp_generated_at}}" id="nowdisable">
@@ -210,6 +215,7 @@
 
 
 
+@endif
 @endif
                 <div class="mb-0 position-relative form-control-new">
                   <input type="text" class="form-control form-input bg-transparent" id="EmailId"
@@ -227,7 +233,7 @@
                       <input type="text" id="useremailOtp" class="form-control  form-input bg-transparent"
                         aria-describedby="otpHelpInline" placeholder="Enter OTP ★" required name="useremailOtp"
                         oninvalid="this.setCustomValidity('Enter the required OTP')" title="Enter OTP"
-                        oninput="setCustomValidity('')" maxlength="10" value="{{Auth::user()->email_mode===null ?'': Auth::user()->email_otp }}">
+                        oninput="setCustomValidity('')" maxlength="10" value="{{Auth::check()?Auth::user()->email_mode===null ?'': Auth::user()->email_otp:'' }}">
                       <label for="userOtp" class="form-label">Enter OTP <span style="color:red">★</span></span></label>
                     </div>
                   </div>
